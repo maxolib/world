@@ -7,6 +7,9 @@ import ThreeHandler from '../utils/handlers/threeHandler'
 import * as ThreeMath from '../utils/Math/ThreeMath.js'
 import fragmentShader from '../shaders/line/fragment.glsl'
 import vertexShader from '../shaders/line/vertex.glsl'
+import { MeshLine, MeshLineMaterial, MeshLineRaycast } from '../utils/thirdParty/THREE.MeshLine.js'
+import LineGenerator from '../utils/thirdParty/animateline/objects/LineGenerator.js'
+import AnimateMeshLine from '../utils/thirdParty/animateline/objects/AnimatedMeshLine.js'
 interface IUniform<T> {
     value: T
 }
@@ -20,13 +23,8 @@ interface SignalPoint {
 interface SignalCurve {
     curve: THREE.Mesh
     geometry: THREE.BufferGeometry
-    material: THREE.Material
-    count: IUniform<number>
-    progress: IUniform<number>
+    material: MeshLineMaterial
     points: THREE.Vector3[]
-    currentIndex: IUniform<number>
-    limitBeginPoint: IUniform<THREE.Vector3>
-    limitLastPoint: IUniform<THREE.Vector3>
 }
 interface SignalPlane {
     startPlane: THREE.Mesh
@@ -98,6 +96,7 @@ export default class SignalGenerator {
 
         return { ...signalPoint, ...signalCurve, ...signalPlane }
     }
+
     createPoints(startPoint: THREE.Vector3, endPoint: THREE.Vector3): SignalPoint {
         var height = 0.5
         var startPoint = startPoint.clone()
@@ -134,53 +133,33 @@ export default class SignalGenerator {
             signal.mid2Point,
             signal.endPoint
         ).getPoints(this.division)
-        const positions = []
-        const colors = []
-        const indexs = new Int32Array(points.length)
-        const count = { value: 0 }
-        const progress = { value: 0 }
-        const limitBeginPoint = { value: points[0] }
-        const limitLastPoint = { value: points[0] }
-        const currentIndex = { value: 8 }
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            positions.push(point.x, point.y, point.z)
-            colors.push(1, 0, 0)
-            indexs[i] = i
-        }
-        console.log(indexs);
+
+
+        // const geometry = new THREE.BufferGeometry();
+        // geometry.setFromPoints(points)
         
-        const geometry = new LineGeometry()
-        geometry.setPositions(positions)
-        geometry.setColors(colors)
-        geometry.setAttribute('indexx', new THREE.Int32BufferAttribute(indexs, 1))
+        // const line = new MeshLine()
+        // line.setGeometry(geometry)
 
-        const material = this.getLineMaterial()
-        material.uniforms.count = count
-        material.uniforms.progress = progress
-        material.uniforms.limitBeginPoint = limitBeginPoint
-        material.uniforms.limitLastPoint = limitLastPoint
-        material.uniforms.currentIndex = currentIndex
-        material.needsUpdate = true
-        console.log(material.defaultAttributeValues);
-        console.log(12);
+        // const material = new MeshLineMaterial({
+        //     color: new THREE.Color("#ff00ff"),
+        //     opacity: 1,
+        //     lineWidth: 100,
+        //     dashArray: 0.5,
+        //     dashOffset: 0.5,
+        //     deshRatio: 0.5,
+        // });
 
-        var curve = new Line2(
-            geometry,
-            material
-        )
-        curve.computeLineDistances()
-        curve.scale.set(1, 1, 1)
+        // var curve = new THREE.Line(line._geometry, material)
+        const AnimatedMeshLine = new AnimateMeshLine({
+            
+        });
+
         return {
             curve,
             geometry,
             points,
-            count,
-            progress,
             material,
-            limitBeginPoint,
-            limitLastPoint,
-            currentIndex,
         }
     }
 
@@ -202,26 +181,5 @@ export default class SignalGenerator {
             startPlane,
             endPlane
         }
-    }
-
-    getLineMaterial() {
-        const material = new LineMaterial({
-            linewidth: this.lineWidth,
-            vertexColors: true,
-            dashed: false,
-            alphaToCoverage: true,
-            transparent: true,
-        })
-        material.onBeforeCompile = shader => {
-
-            shader.vertexShader = vertexShader
-
-
-
-            shader.fragmentShader = fragmentShader
-        }
-
-
-        return material
     }
 }

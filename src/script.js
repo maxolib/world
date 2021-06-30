@@ -2,7 +2,6 @@ import './style.css'
 import * as THREE from 'three'
 import ThreeHandler from './utils/handlers/threeHandler.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import SignalGenerator from './objects/signalGenerator.js'
 import SignalGeneratorMeshLine from './objects/signalGeneratorMeshLine.js'
 import events from 'events'
 

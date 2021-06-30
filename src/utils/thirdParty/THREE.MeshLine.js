@@ -78,9 +78,7 @@
           // as the input geometry are mutated we store them
           // for later retreival when necessary (declaritive architectures)
           this._geometry = g;
-          if (g instanceof THREE.Geometry) {
-              this.setPoints(g.vertices, c);
-          } else if (g instanceof THREE.BufferGeometry) {
+          if (g instanceof THREE.BufferGeometry) {
               this.setPoints(g.getAttribute("position").array, c);
           } else {
               this.setPoints(g, c);

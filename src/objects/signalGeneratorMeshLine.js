@@ -34,12 +34,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var THREE = __importStar(require("three"));
-var Line2_js_1 = require("three/examples/jsm/lines/Line2.js");
-var LineGeometry_js_1 = require("three/examples/jsm/lines/LineGeometry.js");
-var LineMaterial_js_1 = require("three/examples/jsm/lines/LineMaterial.js");
 var ThreeMath = __importStar(require("../utils/Math/ThreeMath.js"));
-var fragment_glsl_1 = __importDefault(require("../shaders/line/fragment.glsl"));
-var vertex_glsl_1 = __importDefault(require("../shaders/line/vertex.glsl"));
+var AnimatedMeshLine_js_1 = __importDefault(require("../utils/thirdParty/animateline/objects/AnimatedMeshLine.js"));
 var SignalGenerator = /** @class */ (function () {
     function SignalGenerator(params) {
         this.division = params.division || 50;
@@ -106,47 +102,25 @@ var SignalGenerator = /** @class */ (function () {
     };
     SignalGenerator.prototype.createCurve = function (signal) {
         var points = new THREE.CubicBezierCurve3(signal.startPoint, signal.mid1Point, signal.mid2Point, signal.endPoint).getPoints(this.division);
-        var positions = [];
-        var colors = [];
-        var indexs = new Int32Array(points.length);
-        var count = { value: 0 };
-        var progress = { value: 0 };
-        var limitBeginPoint = { value: points[0] };
-        var limitLastPoint = { value: points[0] };
-        var currentIndex = { value: 8 };
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            positions.push(point.x, point.y, point.z);
-            colors.push(1, 0, 0);
-            indexs[i] = i;
-        }
-        console.log(indexs);
-        var geometry = new LineGeometry_js_1.LineGeometry();
-        geometry.setPositions(positions);
-        geometry.setColors(colors);
-        geometry.setAttribute('indexx', new THREE.Int32BufferAttribute(indexs, 1));
-        var material = this.getLineMaterial();
-        material.uniforms.count = count;
-        material.uniforms.progress = progress;
-        material.uniforms.limitBeginPoint = limitBeginPoint;
-        material.uniforms.limitLastPoint = limitLastPoint;
-        material.uniforms.currentIndex = currentIndex;
-        material.needsUpdate = true;
-        console.log(material.defaultAttributeValues);
-        console.log(12);
-        var curve = new Line2_js_1.Line2(geometry, material);
-        curve.computeLineDistances();
-        curve.scale.set(1, 1, 1);
+        // const geometry = new THREE.BufferGeometry();
+        // geometry.setFromPoints(points)
+        // const line = new MeshLine()
+        // line.setGeometry(geometry)
+        // const material = new MeshLineMaterial({
+        //     color: new THREE.Color("#ff00ff"),
+        //     opacity: 1,
+        //     lineWidth: 100,
+        //     dashArray: 0.5,
+        //     dashOffset: 0.5,
+        //     deshRatio: 0.5,
+        // });
+        // var curve = new THREE.Line(line._geometry, material)
+        var AnimatedMeshLine = new AnimatedMeshLine_js_1.default({});
         return {
             curve: curve,
             geometry: geometry,
             points: points,
-            count: count,
-            progress: progress,
             material: material,
-            limitBeginPoint: limitBeginPoint,
-            limitLastPoint: limitLastPoint,
-            currentIndex: currentIndex,
         };
     };
     SignalGenerator.prototype.createPlane = function (signalPoints) {
@@ -160,20 +134,6 @@ var SignalGenerator = /** @class */ (function () {
             startPlane: startPlane,
             endPlane: endPlane
         };
-    };
-    SignalGenerator.prototype.getLineMaterial = function () {
-        var material = new LineMaterial_js_1.LineMaterial({
-            linewidth: this.lineWidth,
-            vertexColors: true,
-            dashed: false,
-            alphaToCoverage: true,
-            transparent: true,
-        });
-        material.onBeforeCompile = function (shader) {
-            shader.vertexShader = vertex_glsl_1.default;
-            shader.fragmentShader = fragment_glsl_1.default;
-        };
-        return material;
     };
     return SignalGenerator;
 }());
