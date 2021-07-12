@@ -6,12 +6,16 @@
 
 uniform float linewidth;
 uniform vec2 resolution;
+uniform float startVisible;
+uniform float endVisible;
 
 attribute vec3 instanceStart;
 attribute vec3 instanceEnd;
 
 attribute vec3 instanceColorStart;
 attribute vec3 instanceColorEnd;
+
+attribute float indexRatio;
 
 varying vec2 vUv;
 
@@ -24,14 +28,7 @@ varying float vLineDistance;
 
 #endif
 
-// Inject
-uniform float count;
-uniform float progress;
-uniform float currentIndex;
-uniform vec3 limitBeginPoint;
-uniform vec3 limitEndPoint;
-attribute int indexx;
-varying vec3 vFinalColor;
+varying float vCustomAlpha;
 
 void trimSegment(const in vec4 start,inout vec4 end){
     
@@ -49,28 +46,21 @@ void trimSegment(const in vec4 start,inout vec4 end){
 }
 
 void main(){
-    vec3 newStart  = instanceStart;
-    vec3 newEnd  = instanceEnd;
-    vec3 difVector = newStart - newEnd;
-    if(indexx < 5){
-        vFinalColor = vec3(1., 0., 0.);
-        // newStart.x = 1.;
-    }
-        // newStart.y = float(indexx);
-        // newStart.z = float(indexx);
-    // newEnd.y = (indexx < currentIndex) ? newEnd.y : newEnd.y + 1.;
-
+    vCustomAlpha = (
+        indexRatio >= startVisible &&
+        indexRatio <= endVisible &&
+        startVisible != endVisible
+        ? 1. : 0.);
 
     #ifdef USE_COLOR
-    vec3 modifyPosition = position;
     
-    vColor.xyz=(modifyPosition.y<.5)?instanceColorStart:instanceColorEnd;
+    vColor.xyz=(position.y<.5)?instanceColorStart:instanceColorEnd;
     
     #endif
     
     #ifdef USE_DASH
     
-    vLineDistance=(modifyPosition.y<.5)?dashScale*instanceDistanceStart:dashScale*instanceDistanceEnd;
+    vLineDistance=(position.y<.5)?dashScale*instanceDistanceStart:dashScale*instanceDistanceEnd;
     
     #endif
     
@@ -79,8 +69,8 @@ void main(){
     vUv=uv;
     
     // camera space
-    vec4 start=modelViewMatrix*vec4(newStart,1.);
-    vec4 end=modelViewMatrix*vec4(newEnd,1.);
+    vec4 start=modelViewMatrix*vec4(instanceStart,1.);
+    vec4 end=modelViewMatrix*vec4(instanceEnd,1.);
     
     // special case for perspective projection, and segments that terminate either in, or behind, the camera plane
     // clearly the gpu firmware has a way of addressing this issue when projecting into ndc space
@@ -126,14 +116,14 @@ void main(){
     offset.x/=aspect;
     
     // sign flip
-    if(modifyPosition.x<0.)offset*=-1.;
+    if(position.x<0.)offset*=-1.;
     
     // endcaps
-    if(modifyPosition.y<0.){
+    if(position.y<0.){
         
         offset+=-dir;
         
-    }else if(modifyPosition.y>1.){
+    }else if(position.y>1.){
         
         offset+=dir;
         
@@ -146,19 +136,18 @@ void main(){
     offset/=resolution.y;
     
     // select end
-    vec4 clip=(modifyPosition.y<.5)?clipStart:clipEnd;
+    vec4 clip=(position.y<.5)?clipStart:clipEnd;
     
     // back to clip space
-    // offset*=clip.w;
+    offset*=clip.w;
     
     clip.xy+=offset;
     
-    gl_Position= vec4(clip);
+    gl_Position=clip;
     
-    vec4 mvPosition=(modifyPosition.y<.5)?start:end;// this is an approximation
+    vec4 mvPosition=(position.y<.5)?start:end;// this is an approximation
+    
     #include <logdepthbuf_vertex>
     #include <clipping_planes_vertex>
     #include <fog_vertex>
-
-    // Set varying
 }

@@ -18,10 +18,9 @@ varying float vLineDistance;
 #include <clipping_planes_pars_fragment>
 
 varying vec2 vUv;
-varying vec3 vFinalColor;
+varying float vCustomAlpha;
 
 void main(){
-    
     #include <clipping_planes_fragment>
     
     #ifdef USE_DASH
@@ -31,6 +30,24 @@ void main(){
     if(mod(vLineDistance+dashOffset,dashSize+gapSize)>dashSize)discard;// todo - FIX
     
     #endif
+    
+    float alpha=vCustomAlpha;
+    
+    #ifdef ALPHA_TO_COVERAGE
+    
+    // artifacts appear on some hardware if a derivative is taken within a conditional
+    float a=vUv.x;
+    float b=(vUv.y>0.)?vUv.y-1.:vUv.y+1.;
+    float len2=a*a+b*b;
+    float dlen=fwidth(len2);
+    
+    if(abs(vUv.y)>1.){
+        
+        alpha=1.-smoothstep(1.-dlen,1.+dlen,len2);
+        
+    }
+    
+    #else
     
     if(abs(vUv.y)>1.){
         
@@ -42,17 +59,18 @@ void main(){
         
     }
     
-    vec4 diffuseColor=vec4(diffuse,opacity);
+    #endif
     
+    vec4 diffuseColor=vec4(diffuse,alpha);
     #include <logdepthbuf_fragment>
     #include <color_fragment>
     
-    // gl_FragColor=vec4(diffuseColor.rgb,diffuseColor.a);
-    gl_FragColor = vec4(vFinalColor,diffuseColor.a);
+    gl_FragColor=vec4(diffuseColor.rgb, alpha);
     
     #include <tonemapping_fragment>
     #include <encodings_fragment>
     #include <fog_fragment>
     #include <premultiplied_alpha_fragment>
     
+    // gl_FragColor = vec4(diffuseColor.rgb, vCustomAlpha);
 }

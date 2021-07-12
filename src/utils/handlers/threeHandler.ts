@@ -3,6 +3,7 @@ import events from 'events'
 import Stats from 'stats.js'
 import * as dat from 'dat.gui'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import gsap from "gsap"
 
 export default class ThreeHandler {
     // Graphics
@@ -24,6 +25,7 @@ export default class ThreeHandler {
     private prevElapsedTime: number;
     private elapsedTime: number;
     private deltaTime: number;
+    gsap: GSAP;
 
     constructor(params: SceneObjectParams) {
         this.emitter = new events.EventEmitter()
@@ -43,6 +45,9 @@ export default class ThreeHandler {
 
         this.stats = params.enableStats ? new Stats() : null
         this.gui = params.enableGUI ? new dat.GUI() : null
+        
+        gsap.ticker.add(this.tick)
+        this.gsap = gsap
 
         this.params = params
         this.init()
@@ -68,33 +73,37 @@ export default class ThreeHandler {
     }
 
     tick() {
-        // Awake tick
-        this.emitter.emit('awakeTick')
-
-        this.elapsedTime = this.clock.getElapsedTime()
-        this.deltaTime = this.elapsedTime - this.prevElapsedTime
-        this.prevElapsedTime = this.elapsedTime
-        const elapsedTime = this.elapsedTime
-        const deltaTime = this.deltaTime
-
-
-        // Start tick
-        this.emitter.emit('startTick', elapsedTime, deltaTime)
-
-        this.renderer.render(this.scene, this.camera)
-        window.requestAnimationFrame(() => {this.tick()})
         
-        // End tick
-        this.emitter.emit('endTick', elapsedTime, deltaTime)
+        if(this.emitter){
+            // Awake tick
+            this.emitter.emit('awakeTick')
+            
+            this.elapsedTime = this.clock.getElapsedTime()
+            this.deltaTime = this.elapsedTime - this.prevElapsedTime
+            this.prevElapsedTime = this.elapsedTime
+            const elapsedTime = this.elapsedTime
+            const deltaTime = this.deltaTime
+
+
+            // Start tick
+            this.emitter.emit('startTick', elapsedTime, deltaTime)
+
+            this.renderer.render(this.scene, this.camera)
+            window.requestAnimationFrame(() => {this.tick()})
+            
+            // End tick
+            this.emitter.emit('endTick', elapsedTime, deltaTime)
+        }
     }
 
-    onAwakeTick(action: (...args: any[]) => void) {
+    onAwakeTick(action: () => void) {
         this.emitter.on('awakeTick', action)
     }
-    onStartTick(action: (...args: any[]) => void) {
+    // ...args:any[]
+    onStartTick(action: (elaped: number, delta: number) => void) {
         this.emitter.on('startTick', action)
     }
-    onEndTick(action: (...args: any[]) => void) {
+    onEndTick(action: (elaped: number, delta: number) => void) {
         this.emitter.on('endTick', action)
     }
 }
