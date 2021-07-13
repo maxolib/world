@@ -57,7 +57,7 @@ export class SingalLine extends THREE.Mesh{
 	createMaterial(color?: number): LineMaterial{
         const material = new LineMaterial({
             color: color ?? this.color,
-            linewidth: 0.001,
+            linewidth: 0.0015,
             dashed: false,
             transparent: true,
             opacity: 1,

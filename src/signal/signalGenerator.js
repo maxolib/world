@@ -18,56 +18,88 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SignalGenerator = void 0;
-const all_1 = __importDefault(require("gsap/all"));
 const THREE = __importStar(require("three"));
 const signalLine_1 = require("./signalLine");
 class SignalGenerator {
     constructor(params) {
         var _a, _b, _c;
+        this.parant = params.parant;
         this.maxCount = params.maxCount;
         this.spawnRate = params.spawnRate;
         this.color = (_a = params.color) !== null && _a !== void 0 ? _a : 0xffffff;
         this.idleDuration = (_b = params.idleDuration) !== null && _b !== void 0 ? _b : 2;
         this.animDuration = (_c = params.animDuration) !== null && _c !== void 0 ? _c : 2;
-        this.isPlay = false;
+        this.isPlay = true;
         this.handler = params.handler;
         this.gsap = params.handler.gsap;
         this.points = this.getPointsFromTarget(params.target);
         this.signals = [];
-        all_1.default.to(this, {
+        this.score = 0;
+        this.lastTime = 0;
+        this.gsap.to(this, {
             repeat: -1,
             onUpdate: () => {
-                if (false)
+                if (!this.isPlay)
+                    return;
+                var deltaTime = this.gsap.ticker.time - this.lastTime;
+                this.score += this.spawnRate * deltaTime;
+                if (this.score > 1) {
+                    this.score--;
                     this.Spawn();
+                }
+                this.lastTime = this.gsap.ticker.time;
             },
         });
     }
-    Spawn() {
+    Spawn(start, end) {
         if (this.signals.length > this.maxCount)
             return;
+        // init
+        start = start !== null && start !== void 0 ? start : this.points[Math.floor(Math.random() * this.points.length)];
+        end = end !== null && end !== void 0 ? end : this.points[Math.floor(Math.random() * this.points.length)];
+        // Respawn far points
+        if (start.distanceTo(end) > 1.5) {
+            this.Spawn();
+            return;
+        }
         var signal = new signalLine_1.SingalLine({
-            start: this.points[Math.floor(Math.random() * this.points.length)],
-            end: this.points[Math.floor(Math.random() * this.points.length)],
-            color: 0xaaaaff
+            start: start,
+            end: end,
+            color: this.color,
+            // color: start.distanceTo(end) < 1.5 ? this.color : 0xff0000
         });
         this.signals.push(signal);
+        this.parant.add(signal);
         var timeline = signal.RunAnimation(this.handler);
         timeline.call(() => {
-            this.signals.filter((_item) => { return _item != signal; });
+            this.signals = this.signals.filter((_item) => {
+                return _item != signal;
+            });
+            this.parant.remove(signal);
         });
     }
     getPointsFromTarget(target) {
         var points = [];
+        var array;
         if (target instanceof THREE.Mesh) {
-            // TO DO
+            array = target.geometry.attributes.position.array;
+            for (let i = 0; i < array.length / 3; i++) {
+                var x = array[(i * 3) + 0];
+                var y = array[(i * 3) + 1];
+                var z = array[(i * 3) + 2];
+                points.push(new THREE.Vector3(x, y, z));
+            }
         }
         else if (target instanceof THREE.BufferGeometry) {
-            // TO DO
+            var array = target.attributes.position.array;
+            for (let i = 0; i < array.length / 3; i++) {
+                var x = array[(i * 3) + 0];
+                var y = array[(i * 3) + 1];
+                var z = array[(i * 3) + 2];
+                points.push(new THREE.Vector3(x, y, z));
+            }
         }
         else {
             return target;

@@ -2,9 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import ThreeHandler from './utils/handlers/threeHandler.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
-import { SingalLine } from './signal/signalLine'
 import events from 'events'
-import { random } from 'gsap/all'
 import { SignalGenerator } from './signal/signalGenerator'
 import { Mesh } from 'three'
 
@@ -75,7 +73,7 @@ const dotTexture = textureLoader.load('textures/lit/dot_256.jpg')
 const params = {
     glob: {
         lineWidth: 0.008,
-        rotateY: 0
+        rotateY: 0.1
     }
 }
 if(gui){
@@ -86,15 +84,41 @@ if(gui){
 
 // Model Loader
 const gltsLoader = new GLTFLoader()
+// DEMO World 1
+// gltsLoader.load(
+//     'models/world/world_geometry.gltf',
+//     model => {
+//         console.log(model.scene);
+//         const sphereMesh = model.scene.children[0] as Mesh
+// 		const sphereGeometry = sphereMesh.geometry
+//         const landMaterial = new THREE.MeshStandardMaterial({
+//             color: 0xffffff,
+//             map: landTexture,
+//         })
+//         const land = new THREE.Mesh(
+//             sphereGeometry,
+//             landMaterial,
+//         )
+//         emitter.emit('load.completed.land', land)
+//         scene.add(land)
+//         handler.onStartTick((elapsedTime, deltaTime) => {
+//             land.rotateY(deltaTime * params.glob.rotateY)
+//         })
+//     }
+// )
+
 gltsLoader.load(
-    'models/world/world_geometry.gltf',
+    // 'models/world/world_geometry.gltf',
+    'models/world/world_geometry_vertex.gltf',
     model => {
         console.log(model.scene);
         const sphereMesh = model.scene.children[0] as Mesh
+        console.log(sphereMesh);
+        
 		const sphereGeometry = sphereMesh.geometry
-        const landMaterial = new THREE.MeshStandardMaterial({
-            color: 0xffffff,
-            map: landTexture,
+        const landMaterial = new THREE.MeshBasicMaterial({
+            color: 0x111111,
+            wireframe: true
         })
         const land = new THREE.Mesh(
             sphereGeometry,
@@ -107,34 +131,16 @@ gltsLoader.load(
         })
     }
 )
-// Curve Line
-emitter.on('load.completed.land', land => {
-    var spawn = 10
-    var array = land.geometry.attributes.position.array
-    var points: THREE.Vector3[] = []
-    for (let i = 0; i < array.length / 3; i++) {
-        var x = array[(i*3) + 0]
-        var y = array[(i*3) + 1]
-        var z = array[(i*3) + 2]
-        points.push(new THREE.Vector3(x, y, z))
-    }
-    for (let i = 0; i < spawn; i++) {
-        var startRandom = Math.random()
-        var endRandom = Math.random()
-        var signal = new SingalLine({
-            start: points[Math.floor(startRandom * points.length)],
-            end: points[Math.floor(endRandom * points.length)],
-            color: 0xaaaaff
-        })
-        signal.RunAnimation(handler)
-        land.add(signal)
-    }
 
-	var signalGenerator = new SignalGenerator({
-		target: points,
-		maxCount: 50,
-		spawnRate: 0.5,
-		handler: handler
+// Create signal generator
+emitter.on('load.completed.land', land => {
+	new SignalGenerator({
+		target: land.geometry,
+        parant: land,
+		maxCount: 20,
+		spawnRate: 2,
+		handler: handler,
+        color: 0x9D79EB
 	})
 
 })
