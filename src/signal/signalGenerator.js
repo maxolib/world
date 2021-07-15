@@ -68,7 +68,6 @@ class SignalGenerator {
             start: start,
             end: end,
             color: this.color,
-            // color: start.distanceTo(end) < 1.5 ? this.color : 0xff0000
         });
         this.signals.push(signal);
         this.parant.add(signal);

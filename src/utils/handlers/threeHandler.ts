@@ -35,7 +35,7 @@ export default class ThreeHandler {
             antialias: params.antialias
         })
         this.sizes = { width: window.innerWidth, height: window.innerHeight }
-        this.camera = params.camera || new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100)
+        this.camera = params.camera ?? new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100)
         this.orbitControls = params.enableOrbitControls ? new OrbitControls(this.camera, this.canvas as HTMLElement) : null
         
         this.clock = new THREE.Clock()

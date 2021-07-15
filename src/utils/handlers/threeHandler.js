@@ -30,6 +30,7 @@ const OrbitControls_1 = require("three/examples/jsm/controls/OrbitControls");
 const gsap_1 = __importDefault(require("gsap"));
 class ThreeHandler {
     constructor(params) {
+        var _a;
         this.emitter = new events_1.default.EventEmitter();
         this.canvas = params.canvas;
         this.scene = params.scene || new THREE.Scene();
@@ -37,7 +38,7 @@ class ThreeHandler {
             antialias: params.antialias
         });
         this.sizes = { width: window.innerWidth, height: window.innerHeight };
-        this.camera = params.camera || new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.camera = (_a = params.camera) !== null && _a !== void 0 ? _a : new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100);
         this.orbitControls = params.enableOrbitControls ? new OrbitControls_1.OrbitControls(this.camera, this.canvas) : null;
         this.clock = new THREE.Clock();
         this.prevElapsedTime = 0;
