@@ -45,6 +45,13 @@ class SingalLine extends THREE.Mesh {
         this.points = this.createPoints();
         this.geometry = this.createGeometry();
         this.material = this.createMaterial();
+        if (params.planeGeometry && params.planeMaterial) {
+            this.plane = new THREE.Mesh(params.planeGeometry, params.planeMaterial);
+            this.plane.position.set(params.end.x, params.end.y, params.end.z);
+            this.plane.lookAt(params.end.multiplyScalar(2));
+            this.plane.scale.set(0, 0, 0);
+            this.add(this.plane);
+        }
     }
     createMaterial(color) {
         const material = new LineMaterial_js_1.LineMaterial({
@@ -138,6 +145,12 @@ class SingalLine extends THREE.Mesh {
                 count++;
             },
         });
+        if (this.plane) {
+            timeline.to(this.plane.scale, {
+                'x': 1,
+                'y': 1,
+            });
+        }
         timeline.to(this, {
             startVisible: 1,
             duration: this.animDuration,
@@ -150,6 +163,13 @@ class SingalLine extends THREE.Mesh {
                 count = 0;
             }
         });
+        if (this.plane) {
+            timeline.to(this.plane.scale, {
+                'x': 0,
+                'y': 0,
+                delay: -0.5,
+            });
+        }
         timeline.call(this.Dispose);
         return timeline;
     }

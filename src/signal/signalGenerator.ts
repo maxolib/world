@@ -12,6 +12,8 @@ interface SingalGeneratorParams{
 	color?: number
 	idleDuration?: number
     animDuration?: number
+	planeGeometry?: THREE.BufferGeometry
+	planeMaterial?: THREE.Material
 }
 export class SignalGenerator{
 	points: THREE.Vector3[]
@@ -25,6 +27,10 @@ export class SignalGenerator{
 	isPlay: boolean
 	handler: ThreeHandler
 	gsap: GSAP
+	planeGeometry?: THREE.BufferGeometry
+	planeMaterial?: THREE.Material
+
+
 	private score: number
 	private lastTime: number
 
@@ -42,6 +48,8 @@ export class SignalGenerator{
 		this.signals = []
 		this.score = 0
 		this.lastTime = 0
+		this.planeGeometry = params.planeGeometry
+		this.planeMaterial = params.planeMaterial
 		this.gsap.to(this, {
 			repeat: -1,
 			onUpdate: () => {
@@ -65,7 +73,17 @@ export class SignalGenerator{
 		end = end ?? this.points[Math.floor(Math.random() * this.points.length)]
 
 		// Respawn far points
-		if(start.distanceTo(end) > 1.5){
+		var distance = start.distanceTo(end)
+		var distanceStart = start.distanceTo(new THREE.Vector3(0))
+		var distanceEnd = start.distanceTo(new THREE.Vector3(0))
+
+		if(
+			distance > 1.5 ||
+			distance < 0.2 ||
+			start.x > 1.1 ||
+			distanceStart > 1.1 ||
+			distanceEnd > 1.1)
+		{
 			this.Spawn()
 			return
 		}
@@ -74,6 +92,8 @@ export class SignalGenerator{
             start: start,
             end: end,
 			color: this.color,
+			planeGeometry: this.planeGeometry,
+			planeMaterial: this.planeMaterial
         })
 		
 		this.signals.push(signal)

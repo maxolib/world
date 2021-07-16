@@ -5,8 +5,7 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import fragmentShader from '../shaders/line/fragment.glsl'
 import vertexShader from '../shaders/line/vertex.glsl'
 import ThreeHandler from "../utils/handlers/threeHandler.js";
-import gsap from "gsap"
-import { Material } from "three";
+import { Vector3 } from "three";
 
 interface SignalPoints {
     start: THREE.Vector3
@@ -23,6 +22,8 @@ interface SignalLineParams{
 	endVisible?: number
     idleDuration?: number
     animDuration?: number
+    planeGeometry?: THREE.BufferGeometry
+    planeMaterial?: THREE.Material
 }
 interface UniformNumber{
     value: number
@@ -39,6 +40,8 @@ export class SingalLine extends THREE.Mesh{
     idleDuration: number
     animDuration: number
 
+    plane?: THREE.Mesh
+
 	constructor(params: SignalLineParams){
 		super()
 		this.startVisible = params.startVisible ?? 0 
@@ -53,6 +56,14 @@ export class SingalLine extends THREE.Mesh{
 		this.points = this.createPoints()
 		this.geometry = this.createGeometry()
 		this.material = this.createMaterial()
+        if(params.planeGeometry && params.planeMaterial){
+            this.plane = new THREE.Mesh(params.planeGeometry, params.planeMaterial);
+            this.plane.position.set(params.end.x, params.end.y, params.end.z)
+            this.plane.lookAt(params.end.multiplyScalar(2))
+            this.plane.scale.set(0, 0, 0)
+
+            this.add(this.plane)
+        }
 	}
 	createMaterial(color?: number): LineMaterial{
         const material = new LineMaterial({
@@ -169,6 +180,12 @@ export class SingalLine extends THREE.Mesh{
                 count++
             },
         })
+        if(this.plane){
+            timeline.to(this.plane.scale, {
+                'x': 1,
+                'y': 1,
+            })
+        }
         timeline.to(this,{
             startVisible: 1, 
             duration: this.animDuration, 
@@ -182,6 +199,13 @@ export class SingalLine extends THREE.Mesh{
                 
             }
         })
+        if(this.plane){
+            timeline.to(this.plane.scale, {
+                'x': 0,
+                'y': 0,
+                delay: -0.5,
+            })
+        }
         timeline.call(this.Dispose)
         return timeline
     }
