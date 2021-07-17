@@ -22,33 +22,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var THREE = __importStar(require("three"));
-var events_1 = __importDefault(require("events"));
-var stats_js_1 = __importDefault(require("stats.js"));
-var dat = __importStar(require("dat.gui"));
-var OrbitControls_1 = require("three/examples/jsm/controls/OrbitControls");
-var ThreeHandler = /** @class */ (function () {
-    function ThreeHandler(params) {
+const THREE = __importStar(require("three"));
+const events_1 = __importDefault(require("events"));
+const stats_js_1 = __importDefault(require("stats.js"));
+const dat = __importStar(require("dat.gui"));
+const OrbitControls_1 = require("three/examples/jsm/controls/OrbitControls");
+const EffectComposer_1 = require("three/examples/jsm/postprocessing/EffectComposer");
+const gsap_1 = __importDefault(require("gsap"));
+class ThreeHandler {
+    constructor(params) {
+        var _a, _b, _c, _d, _e, _f;
         this.emitter = new events_1.default.EventEmitter();
         this.canvas = params.canvas;
-        this.scene = params.scene || new THREE.Scene();
-        this.renderer = params.renderer || new THREE.WebGLRenderer({
+        this.scene = (_a = params.scene) !== null && _a !== void 0 ? _a : new THREE.Scene();
+        this.renderer = (_b = params.renderer) !== null && _b !== void 0 ? _b : new THREE.WebGLRenderer({
+            canvas: params.canvas,
             antialias: params.antialias
         });
-        this.sizes = { width: window.innerWidth, height: window.innerHeight };
-        this.camera = params.camera || new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100);
-        this.orbitControls = params.enableOrbitControls ? new OrbitControls_1.OrbitControls(this.camera, this.canvas) : null;
+        this.sizes = (_c = params.sizes) !== null && _c !== void 0 ? _c : { width: window.innerWidth, height: window.innerHeight };
+        this.camera = (_d = params.camera) !== null && _d !== void 0 ? _d : new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.orbitControls = params.enableOrbitControls ? new OrbitControls_1.OrbitControls(this.camera, this.canvas) : undefined;
+        this.effectComposer = params.enableEffectComposer && this.renderer instanceof THREE.WebGLRenderer ? new EffectComposer_1.EffectComposer(this.renderer) : null;
+        (_e = this.effectComposer) === null || _e === void 0 ? void 0 : _e.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        (_f = this.effectComposer) === null || _f === void 0 ? void 0 : _f.setSize(this.sizes.width, this.sizes.height);
+        if (params.enableFullscreen && params.sizes == undefined)
+            this.setFullScreen(params.enableResponsive);
         this.clock = new THREE.Clock();
         this.prevElapsedTime = 0;
         this.elapsedTime = 0;
         this.deltaTime = 0;
         this.stats = params.enableStats ? new stats_js_1.default() : null;
         this.gui = params.enableGUI ? new dat.GUI() : null;
+        // gsap.ticker.add(this.tick)
+        this.gsap = gsap_1.default;
         this.params = params;
         this.init();
+        this.tick();
     }
-    ThreeHandler.prototype.init = function () {
-        var _this = this;
+    init() {
         // Stats
         if (this.stats) {
             this.stats.showPanel(0);
@@ -56,39 +67,63 @@ var ThreeHandler = /** @class */ (function () {
         }
         // Update in tick
         if (this.stats) {
-            this.onEndTick(function () { var _a; (_a = _this.stats) === null || _a === void 0 ? void 0 : _a.end(); });
-            this.onAwakeTick(function () { var _a; (_a = _this.stats) === null || _a === void 0 ? void 0 : _a.begin(); });
+            this.onEndTick(() => { var _a; (_a = this.stats) === null || _a === void 0 ? void 0 : _a.end(); });
+            this.onAwakeTick(() => { var _a; (_a = this.stats) === null || _a === void 0 ? void 0 : _a.begin(); });
         }
         if (this.orbitControls) {
-            this.onStartTick(function () { var _a; (_a = _this.orbitControls) === null || _a === void 0 ? void 0 : _a.update(); });
+            this.onStartTick(() => { var _a; (_a = this.orbitControls) === null || _a === void 0 ? void 0 : _a.update(); });
             this.orbitControls.enableDamping = true;
         }
-    };
-    ThreeHandler.prototype.tick = function () {
-        var _this = this;
-        // Awake tick
-        this.emitter.emit('awakeTick');
-        this.elapsedTime = this.clock.getElapsedTime();
-        this.deltaTime = this.elapsedTime - this.prevElapsedTime;
-        this.prevElapsedTime = this.elapsedTime;
-        var elapsedTime = this.elapsedTime;
-        var deltaTime = this.deltaTime;
-        // Start tick
-        this.emitter.emit('startTick', elapsedTime, deltaTime);
-        this.renderer.render(this.scene, this.camera);
-        window.requestAnimationFrame(function () { _this.tick(); });
-        // End tick
-        this.emitter.emit('endTick', elapsedTime, deltaTime);
-    };
-    ThreeHandler.prototype.onAwakeTick = function (action) {
+    }
+    setFullScreen(responsive) {
+        this.sizes.width = window.innerWidth;
+        this.sizes.height = window.innerHeight;
+        if (!responsive)
+            return;
+        window.addEventListener('resize', () => {
+            var _a;
+            // Update sizes
+            this.sizes.width = window.innerWidth;
+            this.sizes.height = window.innerHeight;
+            // Update camera
+            if (this.camera instanceof THREE.PerspectiveCamera) {
+                this.camera.aspect = this.sizes.width / this.sizes.height;
+                this.camera.updateProjectionMatrix();
+            }
+            // Update renderer
+            (_a = this.renderer) === null || _a === void 0 ? void 0 : _a.setSize(this.sizes.width, this.sizes.height);
+            if (this.renderer instanceof THREE.WebGLRenderer)
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        });
+    }
+    tick() {
+        var _a;
+        if (this.emitter) {
+            // Awake tick
+            this.emitter.emit('awakeTick');
+            this.elapsedTime = this.clock.getElapsedTime();
+            this.deltaTime = this.elapsedTime - this.prevElapsedTime;
+            this.prevElapsedTime = this.elapsedTime;
+            const elapsedTime = this.elapsedTime;
+            const deltaTime = this.deltaTime;
+            // Start tick
+            this.emitter.emit('startTick', elapsedTime, deltaTime);
+            this.renderer.render(this.scene, this.camera);
+            (_a = this.effectComposer) === null || _a === void 0 ? void 0 : _a.render();
+            window.requestAnimationFrame(() => { this.tick(); });
+            // End tick
+            this.emitter.emit('endTick', elapsedTime, deltaTime);
+        }
+    }
+    onAwakeTick(action) {
         this.emitter.on('awakeTick', action);
-    };
-    ThreeHandler.prototype.onStartTick = function (action) {
+    }
+    // ...args:any[]
+    onStartTick(action) {
         this.emitter.on('startTick', action);
-    };
-    ThreeHandler.prototype.onEndTick = function (action) {
+    }
+    onEndTick(action) {
         this.emitter.on('endTick', action);
-    };
-    return ThreeHandler;
-}());
+    }
+}
 exports.default = ThreeHandler;
