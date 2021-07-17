@@ -1,9 +1,15 @@
-# 3D World
-This repo was developed for 3D world interactive development showcase on a website like computer graphic in [Github](https://github.com/) homepage.
+# Interactive World
+This repo was developed for an interactive 3D world development showcase on a website like the interactive design on the Github homepage.
 ![Drag Racing](ref/img.web.preview.png)
 - View [Demo](https://maxolib.github.io/world/) here!!
   > Signals in the demo were generated randomly
----
+## Background Knowledge
+- HTML and CSS
+- Typescript
+- Threejs library
+- Computer graphic rendering
+- Mathematics for computer graphic
+
 ## Installation
 1. Download [Node.js](https://nodejs.org/en/download/) and install `Node.js`.
 2. Run the command below in your terminal.
@@ -32,4 +38,4 @@ This repo was developed for 3D world interactive development showcase on a websi
 Thanks to:
 - [Bruno Simon](https://bruno-simon.com/) - For [three.js Journey](https://threejs-journey.xyz/) course
 - [GreenSock (Gsap)](https://greensock.com/) - For JavaScript animation
-- [Github](https://github.com/) - Computer graphic design for development showcase.
+- [Github](https://github.com/) - Interactive design for development showcase.
