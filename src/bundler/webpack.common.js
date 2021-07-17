@@ -3,6 +3,7 @@ var CopyWebpackPlugin = require('copy-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var MiniCSSExtractPlugin = require('mini-css-extract-plugin');
 var path = require('path');
+
 module.exports = {
     entry: path.resolve(__dirname, '../src/script.js'),
     output: {

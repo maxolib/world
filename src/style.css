@@ -34,16 +34,15 @@ body
 h1{
     font-size: 40px;
     opacity: 0;
+    font: Poppins;
 }
 a {
     color:#9ba5ff;
     border-bottom: 2px solid #9ba5ff;
     pointer-events: auto;
-    /* text-transform: lowercase; */
     text-decoration: none;
     display: inline-block;
     outline: none;
-    /* transition: color .2s, transform .2s; */
 }
 
 .noselect {

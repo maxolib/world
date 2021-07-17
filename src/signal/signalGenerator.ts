@@ -1,4 +1,3 @@
-import gsap from "gsap/all"
 import * as THREE from "three"
 import ThreeHandler from "../utils/handlers/threeHandler"
 import { SingalLine } from "./signalLine"
@@ -29,7 +28,6 @@ export class SignalGenerator{
 	gsap: GSAP
 	planeGeometry?: THREE.BufferGeometry
 	planeMaterial?: THREE.Material
-
 
 	private score: number
 	private lastTime: number

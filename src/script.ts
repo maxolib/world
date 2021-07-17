@@ -4,11 +4,9 @@ import ThreeHandler from './utils/handlers/threeHandler.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import events from 'events'
 import { SignalGenerator } from './signal/signalGenerator'
-import { Mesh, Vector3 } from 'three'
+import { Mesh } from 'three'
 import landFragmentShader from './shaders/land/fragment.glsl'
 import landVertexShader from './shaders/land/vertex.glsl'
-import { GUI } from 'dat.gui'
-
 
 // Event
 const emitter = new events.EventEmitter();
@@ -21,7 +19,6 @@ var canvas = document.querySelector('canvas.webgl') as HTMLCanvasElement
 
 // Camera
 var sizes = {width: window.innerWidth, height: window.innerHeight} 
-// var sizes = { width: 900, height: 900 } 
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.set(0, 1, 2.5)
 scene.add(camera)
@@ -85,9 +82,9 @@ const gltsLoader = new GLTFLoader()
 gltsLoader.load(
     'models/world/world_geometry_vertex.gltf',
     model => {
-        const sphereMesh = model.scene.children[0] as Mesh
+        const landMesh = model.scene.children[0] as Mesh
         
-		const sphereGeometry = sphereMesh.geometry
+		const landGeometry = landMesh.geometry
         const landMaterial = new THREE.PointsMaterial({
             color: 0x5341FF,
             size: 0.006,
@@ -106,30 +103,25 @@ gltsLoader.load(
         
         landMaterial.map = dotTexture
         const land = new THREE.Points(
-            sphereGeometry,
+            landGeometry,
             landMaterial,
         )
         // Load ocean mesh
-        gltsLoader.load('models/world/world_geometry.gltf',
-            model => {
-                const sphereMesh = model.scene.children[0] as Mesh
-                const sphereGeometry = sphereMesh.geometry
-                const material = new THREE.MeshStandardMaterial({
-                    color: 0x04122d
-                })
-                const ocean = new THREE.Mesh(
-                    sphereGeometry,
-                    material
-                )
-                ocean.scale.set(0.999, 0.999, 0.999)
-
-                land.add(ocean)
-                emitter.emit('load.completed.land', land)
-            }
+        // const oceanMesh = model.scene.children[0] as Mesh
+        const oceanGeometry = new THREE.SphereBufferGeometry(1, 50, 50)
+        const oceanMaterial = new THREE.MeshStandardMaterial({
+            color: 0x04122d
+        })
+        const ocean = new THREE.Mesh(
+            oceanGeometry,
+            oceanMaterial
         )
+        ocean.scale.set(0.999, 0.999, 0.999)
+
+        land.add(ocean)
+        emitter.emit('load.completed.land', land)
     }
 )
-
 
 // Animate grob
 emitter.on('load.completed.land', land => {
@@ -154,7 +146,6 @@ emitter.on('load.completed.land', land => {
         land.rotateY(deltaTime * params.glob.rotateY * params.glob.rotateYMultiplier)
     })
 })
-
 
 // Create signal generator
 emitter.on('load.completed.land', land => {
@@ -190,7 +181,6 @@ emitter.on('load.completed.land', land => {
     land.add(logo)
 })
 
-
 // Lighting
 const ambientLight = new THREE.AmbientLight(0x172254, 0.8)
 scene.add(ambientLight)
@@ -208,7 +198,7 @@ const pointBlueLight = new THREE.PointLight(0x4444ff, 5, 4) // default 3
 pointBlueLight.position.set(-2.2, 1.8, -1)
 camera.add(pointBlueLight)
 
-// Create bg
+// Create background
 const img = document.createElement('img')
 img.src = 'textures/bg/blue_bg.png'
 img.style.position = 'fixed'
@@ -230,12 +220,12 @@ console.log(document.getElementsByTagName('body'));
 document.getElementsByTagName('body')[0]?.appendChild(img2)
 
 // Animate H1
-emitter.on('load.completed.land', land => {
+emitter.on('load.completed.land', () => {
     handler.gsap.to(
         'h1', 
         {
             'opacity': 1,
-            delay: 1,
+            delay: 0.5,
             duration: 1.8,
         }
     )
@@ -243,9 +233,9 @@ emitter.on('load.completed.land', land => {
         'h1', 
         {
             'y': 30,
-            delay: 1,
+            delay: 0.5,
             duration: 0.7,
         }
     )
 })
-handler.tick()
+

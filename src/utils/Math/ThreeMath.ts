@@ -9,7 +9,6 @@ export function getNextPoint(point1: THREE.Vector3, point2: THREE.Vector3, lengt
 }
 
 export function getCrossPoint(point1: THREE.Vector3, point2: THREE.Vector3){
-    var crossPoint = point1.clone().cross(point2)
     var midPoint = getMiddlePoint(point1, point2)
     return point1.clone().add(midPoint)
 }

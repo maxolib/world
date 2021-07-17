@@ -5,7 +5,6 @@ import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import fragmentShader from '../shaders/line/fragment.glsl'
 import vertexShader from '../shaders/line/vertex.glsl'
 import ThreeHandler from "../utils/handlers/threeHandler.js";
-import { Vector3 } from "three";
 
 interface SignalPoints {
     start: THREE.Vector3

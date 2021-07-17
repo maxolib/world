@@ -8,11 +8,11 @@ import gsap from "gsap"
 
 export default class ThreeHandler {
     // Graphics
-    canvas: Element;
-    scene: THREE.Scene;
+    canvas: HTMLCanvasElement;
     renderer: THREE.Renderer;
     camera: THREE.Camera;
-    orbitControls: OrbitControls | null;
+    scene: THREE.Scene;
+    orbitControls?: OrbitControls;
     // Common
     params: SceneObjectParams
     sizes: ScreenSize;
@@ -30,17 +30,17 @@ export default class ThreeHandler {
     // Post-Processing
     effectComposer: EffectComposer | null;
 
-
     constructor(params: SceneObjectParams) {
         this.emitter = new events.EventEmitter()
         this.canvas = params.canvas;
-        this.scene = params.scene || new THREE.Scene()
-        this.renderer = params.renderer || new THREE.WebGLRenderer({
+        this.scene = params.scene ?? new THREE.Scene()
+        this.renderer = params.renderer ?? new THREE.WebGLRenderer({
+            canvas: params.canvas,
             antialias: params.antialias
         })
         this.sizes = params.sizes ?? { width: window.innerWidth, height: window.innerHeight }
         this.camera = params.camera ?? new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100)
-        this.orbitControls = params.enableOrbitControls ? new OrbitControls(this.camera, this.canvas as HTMLElement) : null
+        this.orbitControls = params.enableOrbitControls ? new OrbitControls(this.camera, this.canvas as HTMLElement) : undefined
         this.effectComposer = params.enableEffectComposer && this.renderer instanceof THREE.WebGLRenderer ? new EffectComposer(this.renderer) : null
         this.effectComposer?.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         this.effectComposer?.setSize(this.sizes.width, this.sizes.height)
@@ -55,11 +55,13 @@ export default class ThreeHandler {
         this.stats = params.enableStats ? new Stats() : null
         this.gui = params.enableGUI ? new dat.GUI() : null
         
-        gsap.ticker.add(this.tick)
+        // gsap.ticker.add(this.tick)
         this.gsap = gsap
 
         this.params = params
         this.init()
+
+        this.tick()
     }
     private init() {
         
@@ -100,13 +102,13 @@ export default class ThreeHandler {
             }
 
             // Update renderer
-            this.renderer.setSize(this.sizes.width, this.sizes.height)
+            this.renderer?.setSize(this.sizes.width, this.sizes.height)
             if(this.renderer instanceof THREE.WebGLRenderer)
                 this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
         })
     }
 
-    tick() {
+    private tick() {
         
         if(this.emitter){
             // Awake tick
@@ -146,7 +148,7 @@ export default class ThreeHandler {
 }
 
 interface SceneObjectParams {
-    canvas: Element
+    canvas: HTMLCanvasElement
     sizes?: ScreenSize
     scene?: THREE.Scene
     renderer?: THREE.Renderer

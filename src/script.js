@@ -39,7 +39,6 @@ const scene = new THREE.Scene();
 var canvas = document.querySelector('canvas.webgl');
 // Camera
 var sizes = { width: window.innerWidth, height: window.innerHeight };
-// var sizes = { width: 900, height: 900 } 
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
 camera.position.set(0, 1, 2.5);
 scene.add(camera);
@@ -95,8 +94,8 @@ const params = {
 const gltsLoader = new GLTFLoader_1.GLTFLoader();
 // Load Land mesh
 gltsLoader.load('models/world/world_geometry_vertex.gltf', model => {
-    const sphereMesh = model.scene.children[0];
-    const sphereGeometry = sphereMesh.geometry;
+    const landMesh = model.scene.children[0];
+    const landGeometry = landMesh.geometry;
     const landMaterial = new THREE.PointsMaterial({
         color: 0x5341FF,
         size: 0.006,
@@ -112,19 +111,17 @@ gltsLoader.load('models/world/world_geometry_vertex.gltf', model => {
         _shader.fragmentShader = fragment_glsl_1.default;
     };
     landMaterial.map = dotTexture;
-    const land = new THREE.Points(sphereGeometry, landMaterial);
+    const land = new THREE.Points(landGeometry, landMaterial);
     // Load ocean mesh
-    gltsLoader.load('models/world/world_geometry.gltf', model => {
-        const sphereMesh = model.scene.children[0];
-        const sphereGeometry = sphereMesh.geometry;
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x04122d
-        });
-        const ocean = new THREE.Mesh(sphereGeometry, material);
-        ocean.scale.set(0.999, 0.999, 0.999);
-        land.add(ocean);
-        emitter.emit('load.completed.land', land);
+    // const oceanMesh = model.scene.children[0] as Mesh
+    const oceanGeometry = new THREE.SphereBufferGeometry(1, 50, 50);
+    const oceanMaterial = new THREE.MeshStandardMaterial({
+        color: 0x04122d
     });
+    const ocean = new THREE.Mesh(oceanGeometry, oceanMaterial);
+    ocean.scale.set(0.999, 0.999, 0.999);
+    land.add(ocean);
+    emitter.emit('load.completed.land', land);
 });
 // Animate grob
 emitter.on('load.completed.land', land => {
@@ -188,7 +185,7 @@ camera.add(pointRedLight);
 const pointBlueLight = new THREE.PointLight(0x4444ff, 5, 4); // default 3
 pointBlueLight.position.set(-2.2, 1.8, -1);
 camera.add(pointBlueLight);
-// Create bg
+// Create background
 const img = document.createElement('img');
 img.src = 'textures/bg/blue_bg.png';
 img.style.position = 'fixed';
@@ -208,16 +205,15 @@ img2.style.pointerEvents = 'none';
 console.log(document.getElementsByTagName('body'));
 (_b = document.getElementsByTagName('body')[0]) === null || _b === void 0 ? void 0 : _b.appendChild(img2);
 // Animate H1
-emitter.on('load.completed.land', land => {
+emitter.on('load.completed.land', () => {
     handler.gsap.to('h1', {
         'opacity': 1,
-        delay: 1,
+        delay: 0.5,
         duration: 1.8,
     });
     handler.gsap.from('h1', {
         'y': 30,
-        delay: 1,
+        delay: 0.5,
         duration: 0.7,
     });
 });
-handler.tick();

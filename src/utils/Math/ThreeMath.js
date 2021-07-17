@@ -10,7 +10,6 @@ function getNextPoint(point1, point2, length) {
 }
 exports.getNextPoint = getNextPoint;
 function getCrossPoint(point1, point2) {
-    var crossPoint = point1.clone().cross(point2);
     var midPoint = getMiddlePoint(point1, point2);
     return point1.clone().add(midPoint);
 }

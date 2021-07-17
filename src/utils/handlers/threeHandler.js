@@ -31,19 +31,20 @@ const EffectComposer_1 = require("three/examples/jsm/postprocessing/EffectCompos
 const gsap_1 = __importDefault(require("gsap"));
 class ThreeHandler {
     constructor(params) {
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e, _f;
         this.emitter = new events_1.default.EventEmitter();
         this.canvas = params.canvas;
-        this.scene = params.scene || new THREE.Scene();
-        this.renderer = params.renderer || new THREE.WebGLRenderer({
+        this.scene = (_a = params.scene) !== null && _a !== void 0 ? _a : new THREE.Scene();
+        this.renderer = (_b = params.renderer) !== null && _b !== void 0 ? _b : new THREE.WebGLRenderer({
+            canvas: params.canvas,
             antialias: params.antialias
         });
-        this.sizes = (_a = params.sizes) !== null && _a !== void 0 ? _a : { width: window.innerWidth, height: window.innerHeight };
-        this.camera = (_b = params.camera) !== null && _b !== void 0 ? _b : new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100);
-        this.orbitControls = params.enableOrbitControls ? new OrbitControls_1.OrbitControls(this.camera, this.canvas) : null;
+        this.sizes = (_c = params.sizes) !== null && _c !== void 0 ? _c : { width: window.innerWidth, height: window.innerHeight };
+        this.camera = (_d = params.camera) !== null && _d !== void 0 ? _d : new THREE.PerspectiveCamera(75, this.sizes.width / this.sizes.height, 0.1, 100);
+        this.orbitControls = params.enableOrbitControls ? new OrbitControls_1.OrbitControls(this.camera, this.canvas) : undefined;
         this.effectComposer = params.enableEffectComposer && this.renderer instanceof THREE.WebGLRenderer ? new EffectComposer_1.EffectComposer(this.renderer) : null;
-        (_c = this.effectComposer) === null || _c === void 0 ? void 0 : _c.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        (_d = this.effectComposer) === null || _d === void 0 ? void 0 : _d.setSize(this.sizes.width, this.sizes.height);
+        (_e = this.effectComposer) === null || _e === void 0 ? void 0 : _e.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        (_f = this.effectComposer) === null || _f === void 0 ? void 0 : _f.setSize(this.sizes.width, this.sizes.height);
         if (params.enableFullscreen && params.sizes == undefined)
             this.setFullScreen(params.enableResponsive);
         this.clock = new THREE.Clock();
@@ -52,10 +53,11 @@ class ThreeHandler {
         this.deltaTime = 0;
         this.stats = params.enableStats ? new stats_js_1.default() : null;
         this.gui = params.enableGUI ? new dat.GUI() : null;
-        gsap_1.default.ticker.add(this.tick);
+        // gsap.ticker.add(this.tick)
         this.gsap = gsap_1.default;
         this.params = params;
         this.init();
+        this.tick();
     }
     init() {
         // Stats
@@ -79,6 +81,7 @@ class ThreeHandler {
         if (!responsive)
             return;
         window.addEventListener('resize', () => {
+            var _a;
             // Update sizes
             this.sizes.width = window.innerWidth;
             this.sizes.height = window.innerHeight;
@@ -88,7 +91,7 @@ class ThreeHandler {
                 this.camera.updateProjectionMatrix();
             }
             // Update renderer
-            this.renderer.setSize(this.sizes.width, this.sizes.height);
+            (_a = this.renderer) === null || _a === void 0 ? void 0 : _a.setSize(this.sizes.width, this.sizes.height);
             if (this.renderer instanceof THREE.WebGLRenderer)
                 this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         });
