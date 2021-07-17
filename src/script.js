@@ -113,7 +113,18 @@ gltsLoader.load('models/world/world_geometry_vertex.gltf', model => {
     };
     landMaterial.map = dotTexture;
     const land = new THREE.Points(sphereGeometry, landMaterial);
-    emitter.emit('load.completed.land', land);
+    // Load ocean mesh
+    gltsLoader.load('models/world/world_geometry.gltf', model => {
+        const sphereMesh = model.scene.children[0];
+        const sphereGeometry = sphereMesh.geometry;
+        const material = new THREE.MeshStandardMaterial({
+            color: 0x04122d
+        });
+        const ocean = new THREE.Mesh(sphereGeometry, material);
+        ocean.scale.set(0.999, 0.999, 0.999);
+        land.add(ocean);
+        emitter.emit('load.completed.land', land);
+    });
 });
 // Animate grob
 emitter.on('load.completed.land', land => {
@@ -132,19 +143,6 @@ emitter.on('load.completed.land', land => {
     scene.add(land);
     handler.onStartTick((elapsedTime, deltaTime) => {
         land.rotateY(deltaTime * params.glob.rotateY * params.glob.rotateYMultiplier);
-    });
-});
-// Load ocean mesh
-emitter.on('load.completed.land', land => {
-    gltsLoader.load('models/world/world_geometry.gltf', model => {
-        const sphereMesh = model.scene.children[0];
-        const sphereGeometry = sphereMesh.geometry;
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x04122d
-        });
-        const ocean = new THREE.Mesh(sphereGeometry, material);
-        ocean.scale.set(0.999, 0.999, 0.999);
-        land.add(ocean);
     });
 });
 // Create signal generator
@@ -213,7 +211,13 @@ console.log(document.getElementsByTagName('body'));
 emitter.on('load.completed.land', land => {
     handler.gsap.to('h1', {
         'opacity': 1,
-        duration: 3,
+        delay: 1,
+        duration: 1.8,
+    });
+    handler.gsap.from('h1', {
+        'y': 30,
+        delay: 1,
+        duration: 0.7,
     });
 });
 handler.tick();
