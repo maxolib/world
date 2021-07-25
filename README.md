@@ -9,6 +9,7 @@ This repo was developed for an interactive 3D world development showcase on a we
 - Threejs library
 - Computer graphic rendering
 - Mathematics for computer graphic
+- OpenGL Shader
 
 ## Installation
 1. Download [Node.js](https://nodejs.org/en/download/) and install `Node.js`.
