@@ -1,0 +1,3 @@
+[submodule "src/modules/threejs-utils"]
+	path = src/modules/threejs-utils
+	url = https://github.com/maxolib/threejs-utils.git

@@ -1,5 +1,5 @@
 import * as THREE from "three"
-import ThreeHandler from "../utils/handlers/threeHandler"
+import ThreeHandler from "../modules/threejs-utils/handlers/threeHandler"
 import { SingalLine } from "./signalLine"
 
 interface SingalGeneratorParams{

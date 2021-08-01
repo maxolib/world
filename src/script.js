@@ -25,7 +25,7 @@ var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 require("./style.css");
 const THREE = __importStar(require("three"));
-const threeHandler_js_1 = __importDefault(require("./utils/handlers/threeHandler.js"));
+const threeHandler_js_1 = __importDefault(require("./modules/threejs-utils/handlers/threeHandler.js"));
 const GLTFLoader_1 = require("three/examples/jsm/loaders/GLTFLoader");
 const events_1 = __importDefault(require("events"));
 const signalGenerator_1 = require("./signal/signalGenerator");

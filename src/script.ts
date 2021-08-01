@@ -1,6 +1,6 @@
 import './style.css'
 import * as THREE from 'three'
-import ThreeHandler from './utils/handlers/threeHandler.js'
+import ThreeHandler from './modules/threejs-utils/handlers/threeHandler.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import events from 'events'
 import { SignalGenerator } from './signal/signalGenerator'

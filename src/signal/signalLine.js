@@ -24,7 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SingalLine = void 0;
 const THREE = __importStar(require("three"));
-const ThreeMath = __importStar(require("../utils/Math/ThreeMath.js"));
+const ThreeMath = __importStar(require("../modules/threejs-utils/math/ThreeMath.js"));
 const LineGeometry_js_1 = require("three/examples/jsm/lines/LineGeometry.js");
 const LineMaterial_js_1 = require("three/examples/jsm/lines/LineMaterial.js");
 const fragment_glsl_1 = __importDefault(require("../shaders/line/fragment.glsl"));

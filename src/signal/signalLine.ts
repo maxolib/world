@@ -1,10 +1,10 @@
 import * as THREE from "three";
-import * as ThreeMath from '../utils/Math/ThreeMath.js'
+import * as ThreeMath from '../modules/threejs-utils/math/ThreeMath.js'
 import { LineGeometry } from 'three/examples/jsm/lines/LineGeometry.js'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
 import fragmentShader from '../shaders/line/fragment.glsl'
 import vertexShader from '../shaders/line/vertex.glsl'
-import ThreeHandler from "../utils/handlers/threeHandler.js";
+import ThreeHandler from "../modules/threejs-utils/handlers/threeHandler.js";
 
 interface SignalPoints {
     start: THREE.Vector3
