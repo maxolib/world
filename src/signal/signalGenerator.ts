@@ -4,7 +4,7 @@ import { SingalLine } from "./signalLine"
 
 interface SingalGeneratorParams{
 	target: THREE.Mesh | THREE.BufferGeometry | THREE.Vector3[]
-	parant: THREE.Mesh
+	parant: THREE.Object3D
 	handler: ThreeHandler
 	maxCount: number
 	spawnRate: number
@@ -16,7 +16,7 @@ interface SingalGeneratorParams{
 }
 export class SignalGenerator{
 	points: THREE.Vector3[]
-	parant: THREE.Mesh
+	parant: THREE.Object3D
 	signals: SingalLine[]
 	maxCount: number
 	spawnRate: number
