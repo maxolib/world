@@ -111,21 +111,28 @@ console.log(document.getElementsByTagName('body'));
 document.getElementsByTagName('body')[0]?.appendChild(img2)
 
 // Animate H1
-emitter.on('load.completed.land', () => {
+mainWorld.onLoaded(() => {
     handler.gsap.to(
         'h1', 
         {
             'opacity': 1,
-            delay: 0.5,
-            duration: 1.8,
+            delay: 1.5,
+            duration: 2.5,
+        }
+    )
+    handler.gsap.to(
+        '.loading', 
+        {
+            'opacity': 0,
+            duration: 3,
         }
     )
     handler.gsap.from(
         'h1', 
         {
             'y': 30,
-            delay: 0.5,
-            duration: 0.7,
+            delay: 1.5,
+            duration: 1,
         }
     )
 })

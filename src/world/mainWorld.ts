@@ -14,8 +14,13 @@ interface WorldParams {
 
 export default class MainWorld extends MeshLoadable {
 	land: THREE.Points
+	handler: ThreeHandler
+	setting: WorldParams
 	constructor(camera: THREE.Camera, handler: ThreeHandler, params: WorldParams) {
 		super()
+		this.handler = handler
+		this.setting = params
+
 		// Model Loader
 		const gltsLoader = new GLTFLoader(this.loadingManager)
 
@@ -73,22 +78,27 @@ export default class MainWorld extends MeshLoadable {
 						'x': 0,
 						'y': 0,
 						'z': 0,
+						delay: 0.5,
 						duration: 1.8,
 						ease: 'power1.easeOut'
 					}
 				)
+
 				handler.gsap.from(params, {
 					"rotateYMultiplier": 20,
 					duration: 6,
 					ease: "cire",
 
 				})
+				
+				// Add rotate event
 				this.add(this.land)
 				handler.onStartTick((elapsedTime, deltaTime) => {
 					this.land?.rotateY(deltaTime * params.rotateY * params.rotateYMultiplier)
 				})
 
 
+				// Add Signal
 				new SignalGenerator({
 					target: this.land.geometry,
 					parant: this.land,
@@ -105,7 +115,7 @@ export default class MainWorld extends MeshLoadable {
 					})
 				})
 
-				// Miximum Logo !!
+				// Add pin !!
 				var logoGeometry = new THREE.PlaneGeometry(0.05, 0.05)
 				var logoMaterial = new THREE.MeshBasicMaterial({
 					map: pinTexture,
@@ -119,8 +129,13 @@ export default class MainWorld extends MeshLoadable {
 				logo.position.set(-0.2, 0.26, -0.97)
 				logo.rotation.set(0, -1.1, 1.2)
 				this.land.add(logo)
+
+				this.handler.emitter.emit("Loaded", this.land)
 			}
 		)
 	}
 
+	onLoaded(action: (land: THREE.Object3D) => void){
+		this.handler.emitter.on("Loaded", action)
+	}
 }

@@ -31,6 +31,8 @@ const signalGenerator_1 = require("../signal/signalGenerator");
 class MainWorld extends meshLoadable_1.default {
     constructor(camera, handler, params) {
         super();
+        this.handler = handler;
+        this.setting = params;
         // Model Loader
         const gltsLoader = new GLTFLoader_1.GLTFLoader(this.loadingManager);
         const textureLoader = new THREE.TextureLoader(this.loadingManager);
@@ -70,6 +72,7 @@ class MainWorld extends meshLoadable_1.default {
                 'x': 0,
                 'y': 0,
                 'z': 0,
+                delay: 0.5,
                 duration: 1.8,
                 ease: 'power1.easeOut'
             });
@@ -78,11 +81,13 @@ class MainWorld extends meshLoadable_1.default {
                 duration: 6,
                 ease: "cire",
             });
+            // Add rotate event
             this.add(this.land);
             handler.onStartTick((elapsedTime, deltaTime) => {
                 var _a;
                 (_a = this.land) === null || _a === void 0 ? void 0 : _a.rotateY(deltaTime * params.rotateY * params.rotateYMultiplier);
             });
+            // Add Signal
             new signalGenerator_1.SignalGenerator({
                 target: this.land.geometry,
                 parant: this.land,
@@ -98,7 +103,7 @@ class MainWorld extends meshLoadable_1.default {
                     alphaMap: dotTexture
                 })
             });
-            // Miximum Logo !!
+            // Add pin !!
             var logoGeometry = new THREE.PlaneGeometry(0.05, 0.05);
             var logoMaterial = new THREE.MeshBasicMaterial({
                 map: pinTexture,
@@ -111,7 +116,11 @@ class MainWorld extends meshLoadable_1.default {
             logo.position.set(-0.2, 0.26, -0.97);
             logo.rotation.set(0, -1.1, 1.2);
             this.land.add(logo);
+            this.handler.emitter.emit("Loaded", this.land);
         });
+    }
+    onLoaded(action) {
+        this.handler.emitter.on("Loaded", action);
     }
 }
 exports.default = MainWorld;
