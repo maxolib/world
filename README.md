@@ -17,6 +17,9 @@ This repo was developed for an interactive 3D world development showcase on a we
     ``` bash
     # Install dependencies
     npm install
+    
+    # init and update submodules
+    git submodule update --init --recursive
     ```
 ## Development
 1. Open terminal and the command below for runing the local server at `localhost:8080`
